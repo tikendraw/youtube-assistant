@@ -27,7 +27,7 @@ llm = Ollama(
 
 @cache
 def get_youtube_docs(url):
-    loader = YoutubeLoader(url)
+    loader = YoutubeLoader.from_youtube_url(url)
     docs = loader.load()
 
     return docs
@@ -62,34 +62,9 @@ def get_answer(query, llm, db, k=3):
         logger.error(f'Error occurred: {e}', exc_info=True)
         return None
 
-import re
-
-
-def extract_youtube_video_id(url):
-    # Step 1: Define a regular expression pattern for a valid YouTube link
-    youtube_pattern = re.compile(
-        r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/'
-        '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
-
-    # Step 2: Use the pattern to match and extract the video ID
-    match = youtube_pattern.match(url)
-
-    # If there is a match, extract the video ID
-    if match:
-        video_id = match.group(6)
-        return video_id
-    else:
-        # If no match, raise an error
-        raise ValueError("Not a valid YouTube link. Please provide a valid YouTube URL.")
-
 
 if __name__ == '__main__':
     youtube_url = "https://www.youtube.com/watch?v=U_M_vDChJQ"
-    
-    try:
-        video_id = extract_youtube_video_id(youtube_url)
-    except ValueError as e:
-        raise e
     
     try:
         db = get_youtube_video_to_db(video_id, embeddings)
